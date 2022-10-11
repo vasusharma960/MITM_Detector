@@ -4,6 +4,7 @@ class Command {
     protected final String sysMAC;
     protected final String sysIP;
     protected final String defaultGateway;
+    private boolean valid = true;
 
     Command(){
         String ip = "", mac = "", gateway = "";
@@ -18,18 +19,22 @@ class Command {
                     l = br.readLine();
 
                     while((l = br.readLine()) != null && !l.trim().isEmpty()){
-                        if(l.contains("Physical Address")){
-                            mac = l;
-                            c++;
-                        }else if(l.contains("IPv4 Address")){
-                            ip = l;
-                            c++;
-                        }else if(l.contains("Default Gateway")){
-                            gateway = l;
-                            c++;
+                        if(l.contains("Media disconnected")){
+                            this.valid = false;
+                            break;
                         }
+                            if (l.contains("Physical Address")) {
+                                mac = l;
+                                c++;
+                            } else if (l.contains("IPv4 Address")) {
+                                ip = l;
+                                c++;
+                            } else if (l.contains("Default Gateway")) {
+                                gateway = l;
+                                c++;
+                            }
 
-                        if(c == 3) break;
+                            if (c == 3) break;
                     }
                     break;
                 }
@@ -97,36 +102,10 @@ class Command {
         sysMAC = mac.trim();
         sysIP = ip.trim();
         defaultGateway = gateway.trim();
-
-//        System.out.println(sysMAC);
-//        System.out.println(sysIP);
-//        System.out.println(defaultGateway);
     }
 
-    private void exearp(String path){
-        String command = "arp -a";
-
-        try {
-            Process process = Runtime.getRuntime().exec(command);
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()));
-
-            File file = new File(path);
-            FileWriter fw = new FileWriter(file);
-            PrintWriter pw = new PrintWriter(fw);
-            String line;
-
-            while ((line = reader.readLine()) != null) {
-                pw.println(line);
-            }
-
-            reader.close();
-            pw.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
+    public boolean checkValidity(){
+        return this.valid;
     }
 
     private String executeARP(){
@@ -167,13 +146,6 @@ class Command {
 
     public String getARP(){
         return executeARP();
-    }
-    public void firstExecute(){
-        exearp("C:\\Users\\Vasu Sharma\\Desktop\\New folder (2)\\output1.txt");
-    }
-
-    public void secondExecute(){
-        exearp("C:\\Users\\Vasu Sharma\\Desktop\\New folder (2)\\output2.txt");
     }
 
     public void disconnect()throws IOException{
